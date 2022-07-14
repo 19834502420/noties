@@ -1,0 +1,97 @@
+vuex概念：是全局组件管理的一种机制，方便组件之间的数据传递
+
+vue2创建对象的方式
+new Vue(){
+el:
+data:
+method:
+}
+
+vue3创建对象的方式
+
+var obj = {
+        data(){
+            return{
+            myname:"你好"
+        }
+        }
+    }
+     Vue.createApp(obj).mount("#app");
+----------------
+v-show  v-if显示或者隐藏
+v-on 触发事件
+v-for循环表格
+v-model双向绑定数据
+v-binder单项绑定数据
+
+检测数组变动  
+vue2是检测不到数组的变化的，只有一些功能进行了大量的重写才可以被检测到
+vue2解决方法1.Vue.set()
+2.splice方法
+vue3自动解决了这个问题
+
+
+在vue中 input和chenge事件的区别
+input事件： 在输入框输入的时候会实时响应并触发；
+change事件：在输入框失去焦点，并且输入框的值发生变化的时候才会触发，和 blur事件略有不同，blur事件是每次失去焦点时触发，不管输入框数据有没有变化；
+
+
+
+什么是es 
+ECMAScript 6.0（以下简称 ES6）是 JavaScript 语言的下一代标准，已经在 2015 年 6 月正式发布了。它的目标，是使得 JavaScript 语言可以用来编写复杂的大型应用程序，成为企业级开发语言。
+es5 6 7官方文档
+https://www.jianshu.com/p/7151eaea5660
+其中es5的fillter过滤可以过滤数组
+filter方法用于过滤数组成员，满足条件的成员组成一个新数组返回(新数组长度可能会变)。用法跟map极为相似（map新数组长度不会变）
+
+2022/07/05
+1.computed计算属性可以立即的导数据并且计算结果  对于已存在数据的计算效率更高，但是对于未存在的数据  不能立即得到结果效率无法呈现
+用法
+computed:{
+函数名(){
+计算方法
+return 计算结果
+}
+}
+如果是异步请求 可以使用vue中定义的methods里面的方法计算
+但是watch可以监听状态的改变并且没有返回值，不是立即执行，比较符合异步的场景
+watch是vue中和methods同级的属性  可以监听data里面的属性的变化如
+
+data：{mytest:''},
+watch:{
+mytest(新的value,旧的value){}//注意这里面建听谁他的函数名字就试试
+}
+methods绑定事件好用
+conputed同步计算重视结果
+watch异步计算重视过程
+
+
+过滤器Vue.filter
+原来的想要过滤的数据 如{{数据| 过滤器名称 |过滤器名称}}
+Vue.filter(过滤器名称  ， (re参数)=>{操作return结果})
+
+axios用法
+axios.get(请求地址).then(res=>res.data.data.films获取到的值)
+axios.post(请求地址,"")
+
+component自定义组件组件
+Vue.component("组件名称",{
+template:"如<div></div>",
+methods:{}
+props[属性1，属性2]这个属性是从父组件里面传过来的
+但是一般封装成的对象如
+pros{myname:String,myage:Boolean}
+watch:{}
+data(){
+return{}
+}
+})
+
+
+组件之间父传子
+
+父组件也可传递子
+
+
+旧版本slot插巢就是可以把你的自定义组件中的东西放入可执行里如<child>1111<child>
+新版本slot

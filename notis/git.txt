@@ -1,0 +1,17 @@
+git命令
+1.git init 初始化本地仓库
+2.git add。添加暂存区
+3.git status 查看git提交状态
+4.git commit -m‘ ’提交本地仓库
+5git log 查看提交记录
+6 git reset --hard HEAD^   一个^回退一个版本
+7.git reflog 获取提交的所有信息·
+8.获得回退操作的id 并且执行git reset --hard 操作id    回退回之前回退之前的位置
+9.git remote add origin https://github.com/19834502420/mytest.git   添加一个元到远程仓库
+git push -u origin master向 origin远程地址推送
+github账号 19834502420  密码woainirgy1 邮箱2644232953@qq.com
+git clone 加地址
+git clone https://github.com/19834502420/mytest.git --branch master（制定分支）下载制定分支上的文件
+git branch -a 创建分支
+git chechout -b 分支名 创建分支
+git marge 分支名  把分支与对当前分支合并
