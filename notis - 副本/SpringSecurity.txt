@@ -1,0 +1,107 @@
+1.基本使用
+
+首先导入依赖pom
+        <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+       </dependency>
+
+然后创建配置类
+@Service("userDetailsService")
+public class myUserDS implements UserDetailsService {
+    @Autowired
+    UserMappper userMappper;
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        QueryWrapper<com.example.demo.entry.User> queryWrapper = new QueryWrapper();
+        com.example.demo.entry.User o = (com.example.demo.entry.User) userMappper.selectOne(queryWrapper);
+
+        List<GrantedAuthority> authorityList = AuthorityUtils.commaSeparatedStringToAuthorityList("role");
+        return new User(o.getUsername(),new BCryptPasswordEncoder().encode(o.getPassword()),authorityList);
+    }
+}
+@Configuration
+public class SercurityUser1 extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private UserDetailsService userDetailsService;
+    //设置用户名密码并且可以进行加密
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+          }
+
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+}
+
+然后创建启动类 注意扫描mapper和加入启动类注解
+@MapperScan("com.example.demo.mapper")
+@SpringBootApplication
+public class Demo1Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Demo1Application.class, args);
+    }
+
+}
+然后mybatisplus创建
+@Repository
+public interface UserMappper extends BaseMapper<User>{
+}
+之后可以运行 在访问控制类之前会进行拦截
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.自定义设置登陆页面 不需要认证便可以访问
+
+如果是使用的是 Java 代码配置 Spring Security，那么 CSRF 保护默认是开启的，那么在 POST 方式提交表单的时候就必须验证 Token，如果没有，那么自然也就是 403 没权限了。
+
+
+@Configuration
+public class SercurityUser1 extends WebSecurityConfigurerAdapter {
+    @Autowired
+    private UserDetailsService userDetailsService;
+    //设置用户名密码并且可以进行加密
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+          }
+
+    @Bean
+    PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    //自定义界面开发
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.formLogin()//定义自己编写的登录页面
+                .loginPage("/login.html")//自己的登录页面
+                .loginProcessingUrl("/hello/login")//登陆访问路径  就是提交到你要去的控制层
+                .successForwardUrl("/hello/index").permitAll()//登陆成功之后要去的路径
+                .and().authorizeRequests().antMatchers("/hello/index","/hello/login").permitAll()//表示当访问这些路径的时候不需要拦截 可以直接访问
+                .anyRequest().authenticated()//其他所有请求都可需要认证
+                .and().csrf().disable();//防护方式
+
+    }
+}
+
+
+
+3.权限控制  方法1  hasAuthority
+如果当前的主体具备指定的权限 则返回TRUE  否则返回false
+1.在配置类设置当前访问地址有哪些权限
