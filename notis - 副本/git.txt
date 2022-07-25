@@ -15,3 +15,6 @@ git clone https://github.com/19834502420/mytest.git --branch master（制定分�
 git branch -a 创建分支
 git chechout -b 分支名 创建分支
 git marge 分支名  把分支与对当前分支合并
+
+git pull #先执行pull
+git push origin dev  #推送到远端dev分支
