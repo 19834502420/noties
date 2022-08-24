@@ -1,0 +1,147 @@
+{
+  "name": "yn_p1_template_designer",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --open",
+    "serve:rt": "node scripts/serveRt.js --env=production",
+    "serve:rt_dev": "node scripts/serveRt.js --env=development",
+    "build": "vue-cli-service build",
+    "build:production": "vue-cli-service build --mode=production && vue-cli-service build --mode=production --designer-rt",
+    "build:development": "vue-cli-service build --mode=development && vue-cli-service build --mode=development --designer-rt",
+    "build:integrate": "cross-env NODE_ENV=production node scripts/integrate",
+    "build:integrate_development": "cross-env NODE_ENV=development node scripts/integrate",
+    "lint": "vue-cli-service lint",
+    "lint:sonar": "vue-cli-service lint --format=json --max-errors=9999999999999 > report.json",
+    "analyze": "cross-env use_analyzer=true npm run serve",
+    "analyze:production": "cross-env use_analyzer=true npm run build",
+    "analyze:rt": "node scripts/analyzeRt",
+    "test:unit": "vue-cli-service test:unit",
+    "release": "gulp release -f scripts/gulp/gulpfile.js",
+    "iconfontGetter": "yn-iconfont-getter -u http://at.alicdn.com/t/font_2178464_3e5ndn8mrvl.js -o src/static/icons/"
+  },
+  "author": "gongch@yuanian.com",
+  "license": "See license on LICENSE file",
+  "dependencies": {
+    "@handsontable/vue": "^4.1.1",
+    "core-js": "^2.6.11",
+    "handsontable": "^7.2.2",
+    "hyperformula": "^2.0.1",
+    "normalize.css": "^8.0.1",
+    "vue": "^2.6.10",
+    "vue-infinite-scroll": "^2.0.2",
+    "vue-router": "^3.0.3",
+    "vuedraggable": "^2.23.0",
+    "vuex": "^3.1.1",
+    "yn-p1": "^1.0.0",
+    "yn-p1-designer": "^0.1.109"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@vue/cli-plugin-babel": "^3.8.0",
+    "@vue/cli-plugin-eslint": "^3.8.0",
+    "@vue/cli-plugin-unit-jest": "^3.8.0",
+    "@vue/cli-service": "^3.8.0",
+    "@vue/eslint-config-prettier": "^4.0.1",
+    "@vue/test-utils": "1.0.0-beta.29",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-import": "^1.13.0",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-vue-jsx": "^3.7.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-if": "^3.0.0",
+    "gulp-uglify-es": "^2.0.0",
+    "html-loader": "^0.5.5",
+    "http-server": "^13.0.0",
+    "husky": "^3.1.0",
+    "js-conditional-compile-loader": "file:./js-conditional-compile-loader-1.0.15.tgz",
+    "less": "^3.9.0",
+    "less-loader": "^5.0.0",
+    "lint-staged": "^9.5.0",
+    "minimist": "^1.2.5",
+    "moment-locales-webpack-plugin": "^1.1.2",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.2",
+    "source-map-loader": "^0.2.4",
+    "vue-template-compiler": "^2.6.10",
+    "yn_iconfont_getter": "^1.0.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/prettier"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "./**/*.{js,jsx,vue,ts,tsx}": [
+      "eslint --fix",
+      "npm run lint",
+      "git add"
+    ]
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "prettier": {
+    "trailingComma": "none"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.vue$": "vue-jest",
+      ".+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
+    "snapshotSerializers": [
+      "jest-serializer-vue"
+    ],
+    "testMatch": [
+      "**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)"
+    ],
+    "testURL": "http://localhost/",
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ]
+  }
+}

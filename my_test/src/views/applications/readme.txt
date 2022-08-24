@@ -1,0 +1,1 @@
+All new application file MUST be added under this folder.
