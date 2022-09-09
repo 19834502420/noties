@@ -24,7 +24,7 @@ step1: 重新初始化工程，中途报错先不用管
 
 yn   init  myobjectname初始化工程
 
-选元年设计器
+#### 选元年设计器
 
 step2: 删除package-lock.json
 step3: 改yn-p1 和 yn-p1-designer版本
@@ -41,6 +41,12 @@ step4: yarn --update--checksums
 
 
 
-url基本参数
+#### url基本参数
 
-在疫情的压力下，压力最大的是我们这样的中小型公司，过往我们存在的问题也暴露无遗，我们重复派遣的企业大部分减少， 
+
+
+#### xlsx和xlsx-js插件的联合引用
+
+问题解决
+
+**https://www.cnblogs.com/jocelyn11/p/16021236.html**

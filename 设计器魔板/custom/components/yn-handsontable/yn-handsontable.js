@@ -8,11 +8,14 @@ import DsUtils from "yn-p1/libs/utils/DsUtils";
 import UiUtils from "yn-p1/libs/utils/UiUtils";
 import cloneDeep from "lodash/cloneDeep";
 import * as XLSX from "xlsx";
+import XLSXS from "xlsx-style";
+import FileSaver from "file-saver";
 //import util from "src/custom/components/yn-handsontable/utilSSS.js";
 import { disConnect } from "echarts";
 import { COMMON_PROPERTIES } from "yn-p1/libs/utils/ComponentUtils";
-import { F } from "core-js/modules/_export";
+import { F, S } from "core-js/modules/_export";
 import utilSSS from "./utilSSS";
+import { sheets } from "less";
 //import { HyperFormula } from "hyperformula";
 
 const apiNameMap = {
@@ -40,6 +43,8 @@ export default {
   computed: {},
   data() {
     return {
+      msgList: [],
+      getCellStyleall: [],
       container: null,
       allData: null,
       headerData: null,
@@ -74,7 +79,6 @@ export default {
   methods: {
     //获取表头数据
     getHeaderData() {
-      utilSSS.methods.fan2("123");
       //this.mounted();
       //表头数据
       switch (this.apiName) {
@@ -1025,41 +1029,49 @@ export default {
     },
     //获取样式
     getCellStyle() {
-      //console.log("table", this.table);
-
+      // let cellStyleArr = null;
       let cellStyleArr = [];
+
       for (let index = 0; index < 50; index++) {
         for (let index2 = 0; index2 < 50; index2++) {
           cellStyleArr.push({
             row: index,
             col: index2,
             renderer(wot, TD, row, col, prop, value) {
+              //console.log("index", index2);
               //TD.style.height = "6px";
               //TD.style.colWidths = "200px";
               //col.style.colWidths = "200px";
               TD.innerHTML = value;
               TD.className = "htRight";
+              //console.log("aaa", 222);
               return TD.innerHTML;
             }
           });
         }
       }
-
+      //  console.log("cellStyleArr", cellStyleArr);
       // 列头样式
+      //  console.log("aaa", 444);
       for (let rowIndex = 0; rowIndex < 1000; rowIndex++) {
         for (let colIndex = 0; colIndex < 2; colIndex++) {
+          //   console.log("22222", cellStyleArr);
           cellStyleArr.push({
+            //  rr: console.log("111", 2222),
             row: rowIndex,
             col: colIndex,
             renderer(wot, TD, row, col, prop, value) {
               TD.style.background = "#f7f7f7";
               TD.innerHTML = value;
-              // TD.style.height = "6px";
+              TD.style.height = "6px";
+
               return TD.innerHTML;
             }
           });
+          //console.log("caacac", cellStyleArr);
         }
       }
+      //  console.log("cellStyleArr", cellStyleArr);
       // 行头样式
       for (let rowIndex = 0; rowIndex < 2; rowIndex++) {
         for (let colIndex = 0; colIndex < 1000; colIndex++) {
@@ -1097,6 +1109,7 @@ export default {
           }
         }
       });
+      // console.log("cellStyleArr", cellStyleArr);
       // 小计样式
       this.bodyData.forEach((item, index) => {
         if (item.yeTai === "小计") {
@@ -1120,6 +1133,7 @@ export default {
 
       return cellStyleArr;
     },
+
     //获取业务对象数据
     async getBusinessObjectData() {
       return DsUtils.get(
@@ -1184,16 +1198,22 @@ export default {
     },
     //监听下拉框数据
     async onSelectChange(value) {
+      this.table.destroy();
+      // console.log("table", this.tableData);
+
       let a = this.bodyData;
       this.yearChange = value;
       this.selectedValue = value;
       await this.getHeaderData();
+      //this.getCellStyle;
+
       this.resData = await this.getBusinessObjectData();
       await this.getBodyData(2);
       this.tableData = [...this.headerData, ...this.bodyData];
       const container = this.$refs.ynHandsontable;
       const tableWrapper = this.$refs.tableWrapper;
       //destory();
+
       this.table = new YnHandsontable(this.container, {
         data: cloneDeep(this.tableData), //这里必须复制一份tableData，因为handsontable会把合并单元格对应的数据改为null
         autoColumnSize: true,
@@ -1213,46 +1233,6 @@ export default {
         ]
       });
       this.allData = this.table.getData();
-    },
-
-    getSelectOptionsQy() {
-      let url = `http://192.168.2.218:8180/metadata/apiBasOrg/selectDisplayData`;
-      //if (this.selectedValueQy)
-      DsUtils.post(url, {
-        originalFieldCode: "orgParent",
-        query: "orgParent=" + "'" + this.selectedValueQy + "'",
-        limit: 20,
-        fields: ["name"]
-        // value: item.objectId
-      }).then(res => {
-        this.selectOptionsQy = res.data.items.map(item => ({
-          label: item.name,
-          value: item.objectId
-        }));
-        // console.log("ressbbb", this.selectOptionsQy);
-      });
-    },
-
-    //监听下拉框数据
-    async onSelectChangeQy(value) {
-      //console.log("tabledataaa", label);
-      //this.yearChange = value;
-      this.selectedValueQy = value;
-      this.getSelectOptionsQy();
-      await this.getHeaderData();
-      //renderedCallback();
-      this.resData = await this.getBusinessObjectData();
-      await this.getBodyData(2);
-
-      this.tableData = [...this.headerData, ...this.bodyData];
-      this.table.updateSettings({
-        data: this.tableData,
-        cell: this.getCellStyle()
-      });
-      window.open(
-        "http://localhost:8080/#/pageDesigner_rt?TOKEN=11ed28c885fddb5eb1f577e18b4a4f16&menuId=be35d755754611e8a06cb9cf608eeab1&lang=zh_CN&securityFlag=false&timeDelta=-1040&appId=11ecf2d19f1a24e1815559aca99f473e&serviceName=masterdata&hideHeader=true&baseUrl=http%3A%2F%2F192.168.2.218%3A8180%2F&pageDesignerId=11ed24db09c9eee4be84b920be8f490e&dataId=11ed184a38c8bf21be84293f05ecaced&previewType=design&isHistory=true",
-        "_blank"
-      );
     },
     //保存数据
     onSaveClick() {
@@ -1312,9 +1292,8 @@ export default {
       //   UiUtils.successMessage("保存成功");
       // });
     },
-    async excle() {
-      const hot = this.table.getPlugin("exportFile");
 
+    async excle() {
       this.allData.forEach(item1 => {
         if (item1[0] != null) {
           if (item1[0] !== null && item1[0].includes(">")) {
@@ -1326,17 +1305,189 @@ export default {
           }
         }
       });
-      let a = [];
-      // 新建空workbook，然后加入worksheet
-      const ws = XLSX.utils.json_to_sheet(this.allData);
-      // const ws = XLSX.utils.table_to_sheet(this.ynHandsontable);
-      ws["!freeze"] = {
-        xSplit: "1", //冻结列
-        ySplit: "1", //冻结行
-        topLeftCell: "C2", //在未冻结区域的左上角显示的单元格，默认为第一个未冻结的单元格
-        state: "frozen"
+      let wb = XLSX.utils.book_new();
+
+      let headers = {};
+      //console.log("headda", headers);
+      //headers = { ...this.allData[0] };
+      // headers = this.allData[0];
+      // console.log("headda", headers);
+      this.msgList.unshift(headers);
+
+      // console.log("all", this.allData);
+      //this.msgList[0] = this.allData[11];
+
+      for (let index = 0; index < this.allData.length; index++) {
+        for (let index2 = 0; index2 < this.allData[index].length; index2++) {
+          if (this.allData[index][index2] === null)
+            this.allData[index][index2] = "";
+        }
+      }
+      for (let index = 0; index < this.allData.length; index++) {
+        this.msgList[index] = { ...this.allData[index] };
+      }
+
+      let contentWs = XLSX.utils.json_to_sheet(this.msgList, {
+        header: [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18"
+        ],
+        skipHeader: true,
+        origin: "A2"
+      });
+
+      // 单独设置某个单元格内容
+      let style1 = {
+        alignment: {
+          horizontal: "center",
+          vertical: "center"
+        },
+        fill: {
+          fgColor: { rgb: "2498d1" }
+        },
+        border: {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" }
+        }
       };
-      ws["!merges"] = [
+      let style2 = {
+        border: {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" }
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center"
+        },
+        fill: {
+          fgColor: { rgb: "f7f7f7" }
+        }
+      };
+
+      {
+        contentWs["A2"].s = style1;
+        contentWs["B2"].s = style1;
+        contentWs["C2"].s = style1;
+        contentWs["D2"].s = style1;
+        contentWs["E2"].s = style1;
+        contentWs["F2"].s = style1;
+        contentWs["G2"].s = style1;
+        contentWs["H2"].s = style1;
+        contentWs["I2"].s = style1;
+        contentWs["J2"].s = style1;
+        contentWs["K2"].s = style1;
+        contentWs["L2"].s = style1;
+        contentWs["M2"].s = style1;
+        contentWs["N2"].s = style1;
+        contentWs["O2"].s = style1;
+        contentWs["P2"].s = style1;
+        contentWs["Q2"].s = style1;
+        contentWs["R2"].s = style1;
+        contentWs["S2"].s = style1;
+        contentWs["C3"].s = style1;
+        contentWs["D3"].s = style1;
+        contentWs["E3"].s = style1;
+        contentWs["F3"].s = style1;
+        contentWs["G3"].s = style1;
+        contentWs["H3"].s = style1;
+        contentWs["I3"].s = style1;
+        contentWs["J3"].s = style1;
+        contentWs["K3"].s = style1;
+        contentWs["L3"].s = style1;
+        contentWs["M3"].s = style1;
+        contentWs["N3"].s = style1;
+        contentWs["O3"].s = style1;
+        contentWs["P3"].s = style1;
+        contentWs["Q3"].s = style1;
+        contentWs["R3"].s = style1;
+        contentWs["S3"].s = style1;
+        contentWs["A4"].s = style2;
+        contentWs["A5"].s = style2;
+        contentWs["A6"].s = style2;
+        contentWs["A7"].s = style2;
+        contentWs["A8"].s = style2;
+        contentWs["A9"].s = style2;
+        contentWs["A10"].s = style2;
+        contentWs["A11"].s = style2;
+        contentWs["A12"].s = style2;
+        contentWs["A13"].s = style2;
+        contentWs["A14"].s = style2;
+        contentWs["A15"].s = style2;
+        contentWs["A16"].s = style2;
+        contentWs["A17"].s = style2;
+        contentWs["A18"].s = style2;
+        contentWs["A19"].s = style2;
+        contentWs["A20"].s = style2;
+        contentWs["A21"].s = style2;
+        contentWs["A22"].s = style2;
+        contentWs["A23"].s = style2;
+        contentWs["A24"].s = style2;
+        contentWs["A25"].s = style2;
+        contentWs["A25"].s = style2;
+        contentWs["A27"].s = style2;
+        contentWs["A28"].s = style2;
+        contentWs["A29"].s = style2;
+        contentWs["A30"].s = style2;
+        contentWs["B4"].s = style2;
+        contentWs["B5"].s = style2;
+        contentWs["B6"].s = style2;
+        contentWs["B7"].s = style2;
+        contentWs["B8"].s = style2;
+        contentWs["B9"].s = style2;
+        contentWs["B10"].s = style2;
+        contentWs["B11"].s = style2;
+        contentWs["B12"].s = style2;
+        contentWs["B13"].s = style2;
+        contentWs["B14"].s = style2;
+        contentWs["B15"].s = style2;
+        contentWs["B16"].s = style2;
+        contentWs["B17"].s = style2;
+        contentWs["B18"].s = style2;
+        contentWs["B19"].s = style2;
+        contentWs["B20"].s = style2;
+        contentWs["B21"].s = style2;
+        contentWs["B22"].s = style2;
+        contentWs["B23"].s = style2;
+        contentWs["B24"].s = style2;
+        contentWs["B25"].s = style2;
+        contentWs["B26"].s = style2;
+        //contentWs["B26"].s = style1;
+        contentWs["B27"].s = style2;
+        contentWs["B28"].s = style2;
+        contentWs["B29"].s = style2;
+        contentWs["B30"].s = style2;
+      }
+
+      // 设置单元格自动换行,目前仅对非合并单元格生效
+      // contentWs["A3"].s = {
+      //   alignment: {
+      //     wrapText: true, // 设置单元格换行
+      //     indent: 1 // 设置单元格缩进
+      //   }
+      // };
+      //contentWs["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+      contentWs["!merges"] = [
         {
           s: { c: 0, r: 1 },
           e: { c: 0, r: 2 }
@@ -1363,7 +1514,7 @@ export default {
         },
         {
           s: { c: 15, r: 1 },
-          e: { c: 118, r: 1 }
+          e: { c: 18, r: 1 }
         },
         {
           s: { c: 0, r: 3 },
@@ -1382,21 +1533,20 @@ export default {
           e: { c: 0, r: 38 }
         }
       ];
-      ws[("E7", "A1", "B2")] = {
-        s: {
-          fill: {
-            fgColor: { rgb: "FFF222" }
-          }
-        }
-      };
-      // 设置每列的列宽，10代表10个字符，注意中文占2个字符
-      ws["!cols"] = [{ wch: 10 }, { wch: 30 }, { wch: 25 }];
-      // 新建book
-      const wb = XLSX.utils.book_new();
-      // 生成xlsx文件(book,sheet数据,sheet命名)
-      XLSX.utils.book_append_sheet(wb, ws, "数据详情");
-      // 写文件(book,xlsx文件名称)
-      XLSX.writeFile(wb, "列表详情.xlsx");
+      //contentWs["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, contentWs, "数据详情");
+      // 使用xlsx-style写入文件方式,使得自定义样式生效
+      const tmpDown = new Blob([
+        utilSSS.methods.s2ab(
+          XLSXS.write(wb, {
+            bookType: "xlsx",
+            bookSST: true,
+            type: "binary",
+            cellStyles: true
+          })
+        )
+      ]);
+      utilSSS.methods.downExcel(tmpDown, "列表详细.xlsx");
     }
   },
   //生成多维表
@@ -1404,7 +1554,7 @@ export default {
     // const container = this.$refs.ynHandsontable;
     //获取下拉组件数据
     this.getSelectOptions();
-    this.getSelectOptionsQy();
+
     const templateTableData = [
       ["", "Tesla", "Volvo", "Toyota", "Ford"],
       ["2019", 10, 11, 12, 13],
@@ -1418,7 +1568,7 @@ export default {
 
     await this.getHeaderData();
     await this.getBodyData();
-
+    //this.getCellStyleAll = this.getCellStyle();
     this.tableData = [...this.headerData, ...this.bodyData];
     let that = this;
 
@@ -1433,10 +1583,11 @@ export default {
       autoColumnSize: true,
       colWidths: 100,
       colHeaders: true,
-      cell: that.getCellStyle(),
+      cell: this.getCellStyle(),
       className: "htCenter htMiddle",
       fixedColumnsLeft: 3,
       minCols: 10,
+
       rowHeights: "6px",
       minRows: 10,
 
