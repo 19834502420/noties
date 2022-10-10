@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ecs-custom-core</artifactId>
+        <groupId>com.yuanian.ecs</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <name>ecs-custom-core-imp</name>
+    <artifactId>ecs-custom-core-imp</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.yuanian.ecs</groupId>
+            <artifactId>ecs-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuanian.ecs</groupId>
+            <artifactId>ecs-custom-core-metadata</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,50 @@
+{
+  "name": "yn-handsontable",
+  "displayName": "@",
+  "version": "1.0.0",
+  "desc": "@",
+  "properties": {
+    "showSelect": {
+      "displayName": "是否显示下拉组件",
+      "type": "boolean",
+      "value": null,
+      "displayTabId": "tab1",
+      "positionInTab": 0,
+      "visible": true
+    },
+    "showSaveButton": {
+      "displayName": "是否显示保存按钮",
+      "type": "boolean",
+      "value": null,
+      "displayTabId": "tab1",
+      "positionInTab": 1,
+      "visible": true
+    },
+    "apiName": {
+      "displayName": "tbCChannelAdjustPlan",
+      "type": "string",
+      "value": "tbCChannelAdjustPlan",
+      "displayTabId": "tab1",
+      "positionInTab": 1,
+      "visible": true
+    }
+  },
+  "overwriteProperties": {},
+  "designerEvents": {
+    "data": [
+      {
+        "name": "connectedCallback",
+        "displayName": "组件加载前",
+        "desc": "组件插入到dom之后的回调",
+        "args": []
+      },
+      {
+        "name": "renderedCallback",
+        "displayName": "组件加载后",
+        "desc": "组件彻底渲染完成之后的回调",
+        "args": []
+      }
+    ]
+  },
+  "slots": {}
+}

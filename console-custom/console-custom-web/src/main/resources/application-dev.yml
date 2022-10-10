@@ -1,0 +1,370 @@
+server:
+  #指定项目端口
+  port: ${server_port:8095}
+  servlet:
+    #指定项目路径
+    context-path: /
+spring:
+  #feign动态url
+  custom:
+    feign:
+      enabled: true
+      opion:
+        connectTimeoutMillis: 150000 #链接超时时间
+        readTimeoutMillis: 150000 #响应超时时间，如果超过10秒没有接过发起下一次请求
+      retry:
+        period: 5000 #发起当前请求的时间间隔，单位毫秒
+        maxPeriod: 5000 #发起当前请求的最大时间间隔，单位毫秒
+        maxAttempts: 1 #最多请求次数，包括第一次
+  redis:
+    # redis数据库索引(默认为0)，我们使用索引2的数据库，避免和其他数据库冲突
+    database: ${redis_database:0}
+    # redis服务器地址
+    host: ${redis_host:127.0.0.1}
+    # redis访问密码（默认为空）
+    password: ${redis_password:}
+    # redis端口（默认为6379）
+    port: 6379
+    jedis:
+      pool:
+        # 最大可用连接数（默认为8，负数表示无限）
+        max-active: 500
+        # 最大空闲连接数（默认为8，负数表示无限）
+        max-idle: 450
+        # 最小空闲连接数（默认为0，该值只有为正数才有用）
+        min-idle: 0
+        #从连接池中获取连接最大等待时间（默认为-1，单位为毫秒，负数表示无限）
+        max-wait: 50000
+    timeout: 100000
+  #Druid 连接池通用配置
+  datasource:
+    druid:
+      # 下面为连接池的补充设置，应用到上面所有数据源中
+      # 初始化大小，最小，最大
+      initial-size: 50
+      min-idle: 5
+      max-active: 200
+      # 配置获取连接等待超时的时间
+      max-wait: 6000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 25200000
+      # sql 校验
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      max-pool-prepared-statement-per-connection-size: 20
+      filter:
+        wall:
+          config:
+            comment-allow: true
+            multi-statement-allow: true
+      filters: stat,log4j2
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      remove-abandoned: false
+      remove-abandoned-timeout: 1800
+      log-abandoned: true
+      keep-alive: true
+    type: com.alibaba.druid.pool.DruidDataSource
+    # mysql数据库相关配置
+    driver-class-name: com.mysql.jdbc.Driver  #oracle.jdbc.OracleDriver（oracle驱动包）
+    url: jdbc:mysql://127.0.0.1:3306/console?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    # dm 达梦数据库相关配置
+    #    driver-class-name: dm.jdbc.driver.DmDriver
+    #    url: jdbc:dm://192.168.2.205:5347/console_v20_sjs
+    #oracle数据库相关配置
+#    driver-class-name: ${datasource_driver_class_name:oracle.jdbc.OracleDriver}
+#    url: jdbc:${datasource_url:oracle:thin:@//192.168.58.135:1521/fuce}
+    username: ${datasource_username:root}
+    password: ${datasource_password:}
+#分页插件
+pagehelper:
+  # mysql配置mysql、（oracle、dm）配置oracle
+  helperDialect: ${datasource_type:mysql}
+  params: count=countSql
+  reasonable: true
+  supportMethodsArguments: true
+yn:
+  login:
+    logout-target-url: ${logout_target_url:}  #推出登录后打开指定地址
+    token-effective-time-web: 120 # 分钟
+    token-effective-time-app: 10080 # 分钟
+  login-auth-filter:
+    isOpen: ${login_auth_enable:true}
+    exclusionsList: #与 yn.loginAuthfilter.exclusions 配置互斥，exclusionsList优先
+      - /console/v2/api/*
+      - /logs/v2/*
+      - /console/v2/system/getLoginBgType
+      - /console/v2/user/sendKaptchaToEmail
+      - /console/v2/user/getLoginNameByKaptcha
+      - /console/v2/user/resetPwdByEmailCode
+      - /console/client/user/getMsgLanCodeByLoginName
+      - /console/client/ynCloud/login
+      - /v2/api-docs*
+      - /swagger-resources*
+      - /webjars/*
+      - /actuator
+      - /actuator/*
+      - /doc.html*
+      - "*healthz"
+      - /swagger-ui.html
+      - /console/v2/sso/*
+      - /sandbox/getSandboxList
+      - /local/cache/*
+      - /console/v2/login/*
+      - /console/v2/system/getMobileConfigParam
+      - /console/v2/user/getCaptcha
+      - /console/v2/user/getPasswordRule
+      - /console/v2/enterpriseInfo/getEnterpriseInfo
+      - /console/client/auth/ssoLogin
+      - /console/client/auth/authenticate
+      - /console/client/auth/systemUseable
+      - /i18n/v2/language/getEnableLanguages
+      - /i18n/v2/static/queryAllPageLanguages
+      - /metadata/i18nWeb/customAction/getTranslationByKey
+      - /metadata/i18nWeb/customAction/getTranslationByModule
+      - /businessobject/v2/describe
+      - /flow/runtime/clearFlowCaches
+      - /masterdata/metadata/sysUser/*
+      - /masterdata/metadata/sysUser
+      - /masterdata/client/getSysUserById
+      - /authority/client/data/getAuthData
+      - /authority/client/*
+      - /masterdata/dimSync/syncDims
+      - /masterdata/userSync/syncUsersss
+      - /console/v2/app/smartbi/loginSmartbi
+      - /healtyzReport/middleware
+      - /healtyzReport/deploy
+      - /commonCallBack/*
+      - /flow/v2/commonCallback/cardCallback
+    token-security-enable: ${token_security_enable:false}
+    token-security-use-black: ${token_security_use_black:false} #开启黑名单模式，黑名单开启后优先于白名单
+    token-security-effective-time: ${token_security_effective_time:10000} #每次请求的有效时间，单位毫秒
+    token-security-whitelist: #token安全校验白名单，此列表继承上面 exclusionsList 列表
+      - "*/client/*"
+      - /console/v2/notice/downloadAttachment
+      - /excel/v2/exportExcel
+    token-security-black-list: #token安全校验黑名单
+      - /flow/v2/runtime/getHistorys
+  e-mail-server: https://utestmsg.51ykb.com/msg/send
+  replyEditorURL: /#/replyeditor
+  filter:
+    sign-verify-filter:
+      enable: false
+      include-url:
+        - /xxx/xxx/xxx/xxx
+    cors-filter:
+      enable: true
+      allow-origin:
+        - "*"
+    xss-filter:
+      enable: true
+      exclusions:
+        - /metadata/pageDesignerPanels/customAction/updatePageDesignerPanel
+        - /metadata/PluginsTrigger/customAction/addMetadataData
+        - /metadata/PluginsTrigger/customAction/updateMetadataDataById
+        - /metadata/pageDesignerPanels*
+        - /metadata/plugins*
+        - /metadata/pageDesignerTemplate*
+        - /metadata/designerResource*
+  signature:
+    ssologin:
+      secret-key: ssoLoginKey@20201218
+      effective-time: 20  #秒
+  database:
+    # 数据库类型： mysql、oracle、dm（达梦）
+    real-type: ${db_real_type:mysql}
+  mq:
+    enable: ${mq_enable:false}
+    defaultBinder: rocket
+    nameServers: ${mq_nameservers:192.168.2.237:9876}
+    prefix: ${mq_prefix:dev172}
+    reconsumeTimes: 3
+    defaultSubjectPath: com.yuanian.auth.service.imp.LoginSubject
+    # 补偿中心中最大重试次数
+    maxReCompensationTimes: 3
+    # 补偿日志保留天数
+    logRetainDay: 15
+    # 授权中心 MQ 是否接收控制台发出的： 用户角色、用户群组 和 角色权限集 三个关系数据,控制台服务必须关闭；业务系统引用授权中心模块、并需要使用权限服务、并且和控制台分库时需要开启
+    consumerMessage: ${mq_consumermessage:false}
+    # 消费组唯一标识，多个客户端需要同时消费同一个topic的消息时，多个客户端之间要配置不同的值。另外，授权中心做为sdk被业务线引用 并且 yn.mq.consumerMessage 值为 true 时，必须配置一个和控制台服务不一样的值
+    consumerGroupFix: ${mq_consumergroupfix:console}
+    # 在控制台方，不再注册以下配置中的消费者，多个消费者用逗号","进行连接。例如："A,B,C"。注意：控制台服务，请必须加上batchSubmitWorkflowConsumer，这个消费者。
+    excludeConsumerClass: "batchSubmitWorkflowConsumer"
+    compensator:
+      open: true
+      logRetainDay: 15
+      maxReCompensationTimes: 3
+  job:
+    enable: ${job_enable:false}
+    accessToken: ms-yuanian
+    executor:
+      logpath: /data/applogs/xxl-job/jobhandler
+      logretentiondays: 3
+      appname: ${job_appname:dev-console}
+      port: ${job_port:9999}
+      # 任务组唯一业务id，确保全局唯一
+      businessid: ${job_businessid:dev-console}
+      # 任务组名称
+      title: ${job_title:dev-console}
+    admin:
+      addresses: ${job_admin_addresses:http://192.168.2.172/xxl-job-admin}
+  dynamic-datasource: ${dynamic_datasource:false}  #开启动态多数据源，云多租户、沙盒、多应用情况需要开启
+  app:
+    multiple-app: ${multiple_app:false} #多应用开关
+    multiple-app-service-name: ${multiple_app_service_name:console} #多应用服务名称
+    # multiple-app-copy-handler: ${multiple_app_copy_hanlder:YN_COPY_APP_JOB_HANDLER} #生成应用复制的调度任务的HANDLER名称，如果设置了这个参数，则需要提供调度任务消费方法。
+  cloud:
+    tenantMode: ${cloud_tenantmode:local}  # platform | local 多租户开关，platform开启
+    server: ${cloud_server:http://ecs-cloudplatform-api.ecs-oracle-0220:12129/ecs-cloudplatform-api/}
+    securityKey: 3g4l6bcs*1@.B7)p
+    protocal: http
+    loginAuth: login/verifyecstoken
+    baseDriverDB: ${cloud_basedriverdb:mysql}
+    baseVersion: 1.0
+    isCloud: ${cloud_iscloud:false}
+    syncUser: api/syncUser
+    updateUserPwd: login/updatePassword
+    dbLinkPrefix: _DbConn_
+    dbKey: ${cloud_dbkey:CONSOLE} #多租户、沙盒、多应用情况需配置
+    #mysql
+    dataSourceUrl: ${cloud_datasourceurl:jdbc:mysql://%s:%s/%s?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowMultiQueries=true&serverTimezone=GMT%%2B8}
+    #oracle(SERVICE_NAME模式: jdbc:oracle:thin:@//%s:%s/%s ,SID模式: jdbc:oracle:thin:@%s:%s:%s)，
+  #    dataSourceUrl: "jdbc:oracle:thin:@//%s:%s/%s" #配置成SERVICE_NAME格式，兼容SERVICE_NAME与SID
+  masterdata:
+    addType: ${masterdata_addtype:enable}
+    centralized: ${masterdata_centralized:disable}
+  distribution:
+    msg:
+      pushnumber: 100
+  thread:
+    primary:
+      core_pool_size: 5
+      keep_alive_seconds: 200
+      max_pool_size: 20
+      queue_capacity: 200
+  file-store:
+    type: fdfs
+    class-name: com.yuanian.infrastructure.fileupload.service.impl.FdfsStoreService
+  #    class-name: com.yuanian.infrastructure.fileupload.service.impl.OssFileStoreService
+oss:
+  #  目前有: minio ucloud huawei ali tencent
+  ossType: minio
+  #  该path前会自动加上一级目录,名称为:租户号或default, path的默认值是ecs
+  path: ecs
+  #  私有桶默认值为yn-private
+  bucketName: yn-private
+  #  公开桶默认值为yn-public
+  publicBucketName: yn-public
+  #  fileId中桶名和文件名之间的分割符,默认为"|",配置的时候注意yaml中的特殊字符需要用单引号包裹
+  #  fileIdSeparator: '|'
+  minio:
+    endpoint: http://192.168.61.56:9944/
+    accessKey: admin
+    secretKey: admin123
+fastdfs:
+  isOpen: ${fastdfs_enable:true}
+  connect_timeout: 5
+  network_timeout: 30
+  charset: ISO8859-1
+  tracker_server: ${fastdfs_tracker_server:192.168.58.90:22122}
+  http:
+    tracker_http_port: 80
+    anti_steal_token: no
+    secret_key: FastDFS1234567890
+#加密
+jasypt:
+  encryptor:
+    bean: ${jasypt_bean_name:Sm4} #默认为jasyptStringEncryptor，Sm4为国密加密
+    bootstrap: false
+  sm4:
+    key: ${jasypt_sm4_key:1b32587a6e3a7ed31b174d7baa72656e} #Sm4加密的密钥值，要求长必须为32位16进制数
+    iv: ${jasypt_sm4_iv:1b32587a6e3a7ed31b174d7baa72656e} #Sm4加密的向量值，要求长必须为32位16进制数
+#设置ribbon过期时间
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+hystrix:
+  threadpool:
+    default:
+      coreSize: 10 #并发执行的核心线程数，默认10
+      maxQueueSize: -1 #BlockingQueue的最大队列数 默认-1
+      queueSizeRejectionThreshold: 5 #即使maxQueueSize没有达到，达到queueSizeRejectionThreshold该值后，请求也会被拒绝;maxQueueSize=-1时，不起作用
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 240000
+          semaphore:
+            maxConcurrentRequests: 50
+      circuitBreaker:
+        enabled: true
+        requestVolumeThreshold: 20
+        sleepWindowInMilliseconds: 10000
+        errorThresholdPercentage: 50
+      fallback:
+        isolation:
+          semaphore:
+            maxConcurrentRequests: 50
+com:
+  yuanian:
+    metadata:
+      autoInitial: false
+      localCacheEnable: ${LOCAL_CACHE_ENABLE:true} #是否启用元对象本地缓存
+      localCacheExpireHours: ${LOCAL_CACHE_EXPIRE_HOURS:20} #本地缓存过期时间（单位:小时）
+      controlByVersion: true
+      securityCacheEnable: ${SECURITY_CACHE_ENABLE:true} #默认为true
+    redisKeyPrefix: ${redis_key_prefix:console} #应用私有缓存
+    fastjsonType: ${fastjson_type:fastjson2} #json序列化类型
+    redisCommonKeyPrefix: ${redis_commonkey_prefix:ecs} #公共缓存
+    cacheManager: RedisCacheManager
+    redisCommonCacheNames: ${redis_commoncache_names:cp:authenticator,cp:metadataServiceMsg,cp:sandboxSwitch,cp:dbCommon,cp:i18nStaticDataC} #公共缓存CacheNames
+    newUI: ${newUI:true}
+    pdfBase: /tmp/ecs/pdf_tmp
+    importCount: ${importCount:50}
+    maxPdfFile: ${maxPdfFile:50}
+    openTransPDF: ${openTransPDF:true}
+enterprise:
+  system:
+    name: 方舟平台
+  login:
+    logo: data:image/png;base64,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
+  anti:
+    white:
+      logo: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMzdweCIgaGVpZ2h0PSIyOHB4IiB2aWV3Qm94PSIwIDAgMzcgMjgiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8dGl0bGU+MTIzPC90aXRsZT4KICAgIDxnIGlkPSLmlrDniYjnmb3oibLlm77moIciIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgICAgIDxnIGlkPSLnlLvmnb/lpIfku70tMiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTExNi4wMDAwMDAsIC0xMDEuMDAwMDAwKSIgZmlsbD0iI0ZGRkZGRiIgZmlsbC1ydWxlPSJub256ZXJvIj4KICAgICAgICAgICAgPGcgaWQ9IjEyMyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTE2LjAwMDAwMCwgMTAxLjAwMDAwMCkiPgogICAgICAgICAgICAgICAgPHJlY3QgaWQ9IuefqeW9oiIgb3BhY2l0eT0iMCIgeD0iMCIgeT0iMCIgd2lkdGg9IjI4LjUxOTc5MTciIGhlaWdodD0iMjgiPjwvcmVjdD4KICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0xNC44OTE5OTc2LDkuODM3ODM3ODQgTDAsOS44Mzc4Mzc4NCBMMCw4LjQxNjE4NDk1IEwxNS4wNTA0MjMxLDguNDE2MTg0OTUgQzE3Ljg0OTI3MzcsOC40MTYxODQ5NSAyMC4yMjU2NTYzLDUuNzQzNDc3NTkgMjAuOTEyMTY2OSwzLjE4NDUwMjQxIEwxOS42OTc1NzEzLDIuNjE1ODQxMjcgQzIxLjU0NTg2ODgsMi4xMDQwNDYyMyAyMy4yMzU3NDA5LDEuMjUxMDU0NTIgMjQuNzY3MTg3NSwwIEMyMy42NTgyMDg5LDUuMjMxNjgyNTMgMjAuMjc4NDY0OCw5LjgzNzgzNzg0IDE0Ljg5MTk5NzYsOS44Mzc4Mzc4NCBaIiBpZD0i6Lev5b6EIj48L3BhdGg+CiAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTMuODQxNTEyNiw5LjE1ODk0Njc2IEwxMy44NDE1MTI2LDE2LjA1NzM1NjQgQzEzLjg0MTUxMjYsMTcuMTgxNTQxNiAxNC4zMjA0NTEzLDE3LjU5MDMzNjMgMTUuNjUwODM2NiwxNy41OTAzMzYzIEwyMi41MTU2MjUsMTcuNTkwMzM2MyBMMjIuNTE1NjI1LDE4LjkxODkxODkgTDEzLjczNTA4MTcsMTguOTE4OTE4OSBDMTEuNTUzMjQ5OCwxOC45MTg5MTg5IDEwLjU5NTM3MjQsMTguMDUwMjMwMyAxMC41OTUzNzI0LDE2LjIxMDY1NDQgTDEwLjU5NTM3MjQsOS4xNTg5NDY3NiBMMTMuODQxNTEyNiw5LjE1ODk0Njc2IFogTTAuNzUwNTIwODMzLDQuMzU1NjA5NjMgTDAuNzUwNTIwODMzLDMuMDI3MDI3MDMgTDE2LjcxNTE0NDksMy4wMjcwMjcwMyBMMTYuNzE1MTQ0OSw0LjM1NTYwOTYzIEwwLjc1MDUyMDgzMyw0LjM1NTYwOTYzIFoiIGlkPSLlvaLnirYiPjwvcGF0aD4KICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0zMC43MTE1NzgxLDE0LjE2MjE2MjIgTDMwLjcxMTU3ODEsMTAuMDU0MDU0IEwzNS45NzE4NjU4LDEwLjA1NDA1NCBMMzUuOTcxODY1OCw4LjU0MDU0MDU5IEwzMC43MTE1NzgxLDguNTQwNTQwNTkgTDMwLjcxMTU3ODEsNC40MzI0MzI0MyBMMzUuOTcxODY1OCw0LjQzMjQzMjQzIEwzNS45NzE4NjU4LDMuMDI3MDI3MDMgTDI0LjQ5NDg3NDYsMy4wMjcwMjcwMyBDMjQuMjgyMzM3NywzLjQwNTQwNTQxIDIzLjk2MzUzMjUsNC4wNTQwNTQwNSAyMy43NTA5OTU2LDQuNDMyNDMyNDMgTDI3LjQxNzI1NjYsNC40MzI0MzI0MyBMMjcuNDE3MjU2Niw4LjU0MDU0MDU5IEwyMi4wNTA3MDA3LDguNTQwNTQwNTkgQzE5Ljk3ODQ2NjEsOC41NDA1NDA1OSAxOS42MDY1MjY2LDkuMjk3Mjk3MjggMTkuNjA2NTI2NSwxMC44MTA4MTA4IEwxOS42MDY1MjY1LDE0LjE2MjE2MjIgTDE3LjQyODAyMzYsMTQuMTYyMTYyMiBMMTcuNDI4MDIzNiwxNS42NzU2NzU3IEwyNy40MTcyNTY2LDE1LjY3NTY3NTcgTDI3LjQxNzI1NjYsMTkuODM3ODM3OSBMMzAuNzExNTc4MSwxOS44Mzc4Mzc5IEwzMC43MTE1NzgxLDE1LjY3NTY3NTcgTDM2LjAyNSwxNS42NzU2NzU3IEwzNi4wMjUsMTQuMTYyMTYyMiBMMzAuNzExNTc4MSwxNC4xNjIxNjIyIFogTTI3LjQxNzI1NjYsMTQuMTYyMTYyMiBMMjIuOTAwODQ4LDE0LjE2MjE2MjIgTDIyLjkwMDg0OCwxMC44NjQ4NjQ5IEMyMi45MDA4NDgsMTAuMjcwMjcwMyAyMy4xMTMzODQ5LDEwLjA1NDA1NCAyMy45NjM1MzI1LDEwLjA1NDA1NCBMMjcuNDE3MjU2NiwxMC4wNTQwNTQgTDI3LjQxNzI1NjYsMTQuMTYyMTYyMiBaIE03LjU0NTA1ODk4LDkuNTEzNTEzNTQgTDcuNTQ1MDU4OTgsMTAuNDg2NDg2NSBDNy41NDUwNTg5OCwxNS41Njc1Njc2IDUuNjMyMjI3MTUsMTguOTE4OTE4OSAwLjY5MDc0NDgzOSwyMC41NDA1NDA1IEwwLjY5MDc0NDgzOSwxOC45NzI5NzI5IEMzLjA4MTc4NDY1LDE3LjgzNzgzNzggNC41MTY0MDg1NCwxNS4wMjcwMjcgNC41MTY0MDg1NCwxMC40MzI0MzI0IEw0LjUxNjQwODU0LDkuNDU5NDU5NDYgTDcuNTQ1MDU4OTgsOS40NTk0NTk0NiBMNy41NDUwNTg5OCw5LjUxMzUxMzU0IFogTTEuNzAwMjk0OTgsMjggTDIuNjAzNTc2NjksMjggQzIuNzYyOTc5MzQsMjggMi44NjkyNDc3OCwyNy44OTE4OTE5IDIuODY5MjQ3NzgsMjcuNzI5NzI5NyBMMi44NjkyNDc3OCwyNi4xNjIxNjIyIEw0LjcyODk0NTQxLDIzLjA4MTA4MTEgTDMuNjY2MjYxMDUsMjMuMDgxMDgxMSBDMy41NTk5OTI2MiwyMy4wODEwODExIDMuNDUzNzI0MTksMjMuMTM1MTM1MiAzLjQ1MzcyNDE5LDIzLjI0MzI0MzMgTDIuMzM3OTA1NiwyNS4zNTEzNTE0IEwxLjM4MTQ4OTY3LDIzLjI0MzI0MzMgQzEuMzI4MzU1NDUsMjMuMTM1MTM1MiAxLjIyMjA4NzAyLDIzLjA4MTA4MTEgMS4xMTU4MTg1OCwyMy4wODEwODExIEwwLDIzLjA4MTA4MTEgTDEuNzAwMjk0OTgsMjYuMTYyMTYyMiBMMS43MDAyOTQ5OCwyOCBaIE01LjUyNTk1ODY5LDIzLjAyNzAyNzEgTDUuNTI1OTU4NjksMjYuMTA4MTA4MSBDNS40NzI4MjQ0OCwyNi42NDg2NDg3IDUuNjMyMjI3MTIsMjcuMTg5MTg5MiA2LjAwNDE2NjY2LDI3LjYyMTYyMTYgQzYuMTYzNTY5MzEsMjcuNzgzNzgzOCA2LjMyMjk3MTk3LDI3LjgzNzgzNzggNi41MzU1MDg4NCwyNy44OTE4OTE5IEM2Ljg1NDMxNDEzLDI3Ljk0NTk0NTkgNy4xMTk5ODUyNSwyOCA3LjQzODc5MDU4LDI4IEwxMC4wOTU1MDE1LDI4IEwxMC4wOTU1MDE1LDIzLjAyNzAyNzEgTDkuMjk4NDg4MjMsMjMuMDI3MDI3MSBDOS4xMzkwODU1NiwyMy4wMjcwMjcxIDkuMDMyODE3MSwyMy4xMzUxMzUyIDkuMDMyODE3MSwyMy4yOTcyOTczIEw5LjAzMjgxNzEsMjcuMTg5MTg5MiBMNy40Mzg3OTA1OCwyNy4xODkxODkyIEM3LjE3MzExOTQ2LDI3LjE4OTE4OTIgNi45NjA1ODI1OSwyNy4wODEwODExIDYuODAxMTc5OTIsMjYuOTE4OTE4OSBDNi42NDE3NzcyNywyNi43NTY3NTY4IDYuNTM1NTA4ODQsMjYuNDg2NDg2NSA2LjU4ODY0MzA1LDI2LjIxNjIxNjIgTDYuNTg4NjQzMDUsMjMuMjk3Mjk3MyBDNi41ODg2NDMwNSwyMy4xMzUxMzUyIDYuNDgyMzc0NjIsMjMuMDI3MDI3MSA2LjMyMjk3MTk3LDIzLjAyNzAyNzEgTDUuNTI1OTU4NjksMjMuMDI3MDI3MSBMNS41MjU5NTg2OSwyMy4wMjcwMjcxIFogTTEzLjA3MTAxNzcsMjUuMTM1MTM1MiBDMTIuNjk5MDc4MiwyNS4xMzUxMzUyIDEyLjI3NDAwNDQsMjUuMTM1MTM1MiAxMS45MDIwNjQ5LDI1LjI0MzI0MzMgQzExLjYzNjM5MzgsMjUuMzUxMzUxNCAxMS40NzY5OTExLDI1LjUxMzUxMzUgMTEuMzE3NTg4NSwyNS43Mjk3Mjk3IEMxMS4xNTgxODU4LDI2IDExLjEwNTA1MTYsMjYuMjcwMjcwMyAxMS4xMDUwNTE2LDI2LjU5NDU5NDYgQzExLjA1MTkxNzQsMjcuMDI3MDI3MSAxMS4yNjQ0NTQzLDI3LjUxMzUxMzUgMTEuNjM2MzkzOCwyNy43Mjk3Mjk3IEMxMS43OTU3OTY0LDI3LjgzNzgzNzggMTEuOTU1MTk5MiwyNy44OTE4OTE5IDEyLjExNDYwMTgsMjcuODkxODkxOSBDMTIuNDg2NTQxMywyNy45NDU5NDU5IDEyLjg1ODQ4MDksMjcuOTQ1OTQ1OSAxMy4yMzA0MjAzLDI3Ljk0NTk0NTkgTDE2LjA0NjUzMzksMjcuOTQ1OTQ1OSBMMTYuMDQ2NTMzOSwyNS4xMzUxMzUyIEMxNi4wOTk2NjgyLDI0LjA1NDA1NCAxNS43ODA4NjI4LDIzLjQwNTQwNTQgMTUuMDM2OTgzOCwyMy4xMzUxMzUyIEMxNC44Nzc1ODExLDIzLjA4MTA4MTEgMTQuNzE4MTc4NSwyMy4wODEwODExIDE0LjU1ODc3NTgsMjMuMDI3MDI3MSBMMTEuNDIzODU2OSwyMy4wMjcwMjcxIEwxMS40MjM4NTY5LDIzLjUxMzUxMzUgQzExLjQyMzg1NjksMjMuNjc1Njc1NyAxMS41MzAxMjU0LDIzLjc4Mzc4MzggMTEuNjg5NTI4LDIzLjc4Mzc4MzggTDEzLjY1NTQ5NDEsMjMuNzgzNzgzOCBDMTQuMDI3NDMzNiwyMy43Mjk3Mjk3IDE0LjM0NjIzOSwyMy44Mzc4Mzc4IDE0LjY2NTA0NDIsMjQuMDU0MDU0IEMxNC44Nzc1ODExLDI0LjI3MDI3MDMgMTQuOTgzODQ5NSwyNC41OTQ1OTQ2IDE0LjkzMDcxNTMsMjQuOTE4OTE5IEwxNC45MzA3MTUzLDI1LjA4MTA4MTEgTDEzLjA3MTAxNzcsMjUuMTM1MTM1MiBMMTMuMDcxMDE3NywyNS4xMzUxMzUyIFogTTE0Ljk4Mzg0OTUsMjcuMjQzMjQzMiBMMTMuMTI0MTUyLDI3LjI0MzI0MzIgQzEyLjg1ODQ4MDksMjcuMjQzMjQzMiAxMi42NDU5NDM5LDI3LjE4OTE4OTIgMTIuNDMzNDA3LDI3LjA4MTA4MTEgQzEyLjIyMDg3MDIsMjYuOTcyOTczIDEyLjExNDYwMTgsMjYuNzU2NzU2OCAxMi4xNjc3MzYsMjYuNTQwNTQwNiBDMTIuMTY3NzM2LDI2LjMyNDMyNDMgMTIuMjIwODcwMiwyNi4xNjIxNjIyIDEyLjM4MDI3MjgsMjYuMDU0MDU0IEMxMi41Mzk2NzU2LDI1Ljk0NTk0NTkgMTIuNjk5MDc4MiwyNS44Mzc4Mzc4IDEyLjkxMTYxNTEsMjUuODkxODkxOSBMMTQuOTgzODQ5NSwyNS44OTE4OTE5IEwxNC45ODM4NDk1LDI3LjI0MzI0MzIgTDE0Ljk4Mzg0OTUsMjcuMjQzMjQzMiBaIE0xOC4zODQ0Mzk1LDIzLjc4Mzc4MzggTDE5LjgxOTA2MzQsMjMuNzgzNzgzOCBDMjAuMjQ0MTM3MiwyMy43Mjk3Mjk3IDIwLjY2OTIxMDksMjQgMjAuNzIyMzQ1MSwyNC40ODY0ODY1IEwyMC43MjIzNDUxLDI3LjcyOTcyOTcgQzIwLjcyMjM0NTEsMjcuODkxODkxOSAyMC44Mjg2MTM2LDI4IDIwLjk4ODAxNjIsMjggTDIxLjc4NTAyOTUsMjggTDIxLjc4NTAyOTUsMjQuOTE4OTE5IEMyMS44MzgxNjM3LDI0LjM3ODM3ODQgMjEuNjc4NzYxLDIzLjgzNzgzNzggMjEuMzA2ODIxNSwyMy40NTk0NTk1IEMyMS4xNDc0MTg5LDIzLjM1MTM1MTQgMjAuOTg4MDE2MiwyMy4yNDMyNDMzIDIwLjc3NTQ3OTMsMjMuMTg5MTg5MiBDMjAuNDU2Njc0MSwyMy4xMzUxMzUyIDIwLjE5MTAwMjksMjMuMDgxMDgxMSAxOS44NzIxOTc3LDIzLjA4MTA4MTEgTDE3LjMyMTc1NTEsMjMuMDgxMDgxMSBMMTcuMzIxNzU1MSwyOCBMMTguMTE4NzY4NCwyOCBDMTguMjc4MTcxMSwyOCAxOC4zODQ0Mzk1LDI3Ljg5MTg5MTkgMTguMzg0NDM5NSwyNy43Mjk3Mjk3IEwxOC4zODQ0Mzk1LDIzLjc4Mzc4MzggTDE4LjM4NDQzOTUsMjMuNzgzNzgzOCBaIE0yMy4xMTMzODQ5LDI4IEwyNC4xNzYwNjkzLDI4IEwyNC4xNzYwNjkzLDIzLjI5NzI5NzMgQzI0LjE3NjA2OTMsMjMuMTM1MTM1MiAyNC4wNjk4MDA4LDIzLjAyNzAyNzEgMjMuOTEwMzk4MiwyMy4wMjcwMjcxIEwyMy4xMTMzODQ5LDIzLjAyNzAyNzEgTDIzLjExMzM4NDksMjggWiBNMjcuMjA0NzE5OCwyNS4xMzUxMzUyIEMyNi44MzI3ODAyLDI1LjEzNTEzNTIgMjYuNDA3NzA2NSwyNS4xMzUxMzUyIDI2LjAzNTc2NjksMjUuMjQzMjQzMyBDMjUuNzcwMDk1OSwyNS4zNTEzNTE0IDI1LjYxMDY5MzIsMjUuNTEzNTEzNSAyNS40NTEyOTA1LDI1LjcyOTcyOTcgQzI1LjI5MTg4NzksMjYgMjUuMjM4NzUzNiwyNi4yNzAyNzAzIDI1LjIzODc1MzYsMjYuNTk0NTk0NiBDMjUuMTg1NjE5NSwyNy4wMjcwMjcxIDI1LjM5ODE1NjMsMjcuNTEzNTEzNSAyNS43NzAwOTU5LDI3LjcyOTcyOTcgQzI1LjkyOTQ5ODUsMjcuODM3ODM3OCAyNi4wODg5MDEyLDI3Ljg5MTg5MTkgMjYuMjQ4MzAzOCwyNy44OTE4OTE5IEMyNi42MjAyNDM0LDI3Ljk0NTk0NTkgMjYuOTkyMTgyOSwyNy45NDU5NDU5IDI3LjM2NDEyMjUsMjcuOTQ1OTQ1OSBMMzAuMTgwMjM2LDI3Ljk0NTk0NTkgTDMwLjE4MDIzNiwyNS4xMzUxMzUyIEMzMC4yMzMzNzAyLDI0LjA1NDA1NCAyOS45MTQ1NjQ5LDIzLjQwNTQwNTQgMjkuMTcwNjg1OCwyMy4xMzUxMzUyIEMyOS4wMTEyODMxLDIzLjA4MTA4MTEgMjguODUxODgwNSwyMy4wODEwODExIDI4LjY5MjQ3NzksMjMuMDI3MDI3MSBMMjUuNTU3NTU5LDIzLjAyNzAyNzEgTDI1LjU1NzU1OSwyMy41MTM1MTM1IEMyNS41NTc1NTksMjMuNjc1Njc1NyAyNS42NjM4Mjc0LDIzLjc4Mzc4MzggMjUuODIzMjMwMiwyMy43ODM3ODM4IEwyNy43ODkxOTYyLDIzLjc4Mzc4MzggQzI4LjE2MTEzNTcsMjMuNzI5NzI5NyAyOC40Nzk5NDEsMjMuODM3ODM3OCAyOC43OTg3NDYzLDI0LjA1NDA1NCBDMjkuMDExMjgzMSwyNC4yNzAyNzAzIDI5LjExNzU1MTYsMjQuNTk0NTk0NiAyOS4xMTc1NTE2LDI0LjkxODkxOSBMMjkuMTE3NTUxNiwyNS4wODEwODExIEwyNy4yMDQ3MTk4LDI1LjEzNTEzNTIgTDI3LjIwNDcxOTgsMjUuMTM1MTM1MiBaIE0yOS4xMTc1NTE2LDI3LjI0MzI0MzIgTDI3LjI1Nzg1MzksMjcuMjQzMjQzMiBDMjYuOTkyMTgyOSwyNy4yNDMyNDMyIDI2Ljc3OTY0NjEsMjcuMTg5MTg5MiAyNi41NjcxMDkyLDI3LjA4MTA4MTEgQzI2LjM1NDU3MjMsMjYuOTcyOTczIDI2LjI0ODMwMzgsMjYuNzU2NzU2OCAyNi4zMDE0MzgsMjYuNTQwNTQwNiBDMjYuMzAxNDM4LDI2LjM3ODM3ODQgMjYuNDA3NzA2NSwyNi4xNjIxNjIyIDI2LjUxMzk3NDksMjYuMDU0MDU0IEMyNi42NzMzNzc1LDI1Ljk0NTk0NTkgMjYuODMyNzgwMiwyNS44Mzc4Mzc4IDI3LjA0NTMxNzEsMjUuODkxODkxOSBMMjkuMTE3NTUxNiwyNS44OTE4OTE5IEwyOS4xMTc1NTE2LDI3LjI0MzI0MzIgTDI5LjExNzU1MTYsMjcuMjQzMjQzMiBaIE0zMi41NzEyNzU3LDIzLjc4Mzc4MzggTDM0LjAwNTg5OTcsMjMuNzgzNzgzOCBDMzQuMjcxNTcwOCwyMy43ODM3ODM4IDM0LjUzNzI0MTksMjMuODM3ODM3OCAzNC42OTY2NDQ2LDI0IEMzNC44NTYwNDcyLDI0LjIxNjIxNjIgMzQuOTYyMzE1NiwyNC40MzI0MzI0IDM0LjkwOTE4MTQsMjQuNzAyNzAyNyBMMzQuOTA5MTgxNCwyNy42NzU2NzU3IEMzNC45MDkxODE0LDI3LjgzNzgzNzggMzUuMDE1NDQ5OCwyNy45NDU5NDU5IDM1LjE3NDg1MjQsMjcuOTQ1OTQ1OSBMMzUuOTcxODY1OCwyNy45NDU5NDU5IEwzNS45NzE4NjU4LDI0LjkxODkxOSBDMzYuMDI1LDI0LjM3ODM3ODQgMzUuODY1NTk3NCwyMy44Mzc4Mzc4IDM1LjQ5MzY1NzgsMjMuNDU5NDU5NSBDMzUuMzM0MjU1MSwyMy4zNTEzNTE0IDM1LjE3NDg1MjQsMjMuMjQzMjQzMyAzNC45NjIzMTU2LDIzLjE4OTE4OTIgQzM0LjY0MzUxMDMsMjMuMTM1MTM1MiAzNC4zNzc4MzkyLDIzLjA4MTA4MTEgMzQuMDU5MDMzOSwyMy4wODEwODExIEwzMS40NTU0NTcyLDIzLjA4MTA4MTEgTDMxLjQ1NTQ1NzIsMjggTDMyLjI1MjQ3MDUsMjggQzMyLjQxMTg3MzEsMjggMzIuNTE4MTQxNiwyNy44OTE4OTE5IDMyLjUxODE0MTYsMjcuNzI5NzI5NyBMMzIuNTE4MTQxNiwyMy43ODM3ODM4IEwzMi41NzEyNzU3LDIzLjc4Mzc4MzggWiIgaWQ9IuW9oueKtiI+PC9wYXRoPgogICAgICAgICAgICA8L2c+CiAgICAgICAgPC9nPgogICAgPC9nPgo8L3N2Zz4="
+appstore:
+  token: ${appstore_token:gUFDEYIjbbobvatkh8RsfRWT55UxSnVp0PrvQ/4QzSo=}
+swagger:
+  enable: ${swagger_enable:false} # swagger文档开关
+product:
+  api-uri:
+    getRangeOrgData:
+    saveNoticeOrgRange:
+    getCurrentUserNotice:
+smartbi:
+  root:
+    pc: http://localhost:8080/smartbi/vision/
+    mobile: http://localhost:8080/smartbi/mobileX/
+  url:
+    white-list: http://localhost:8080/smartbi/.*
+fssc:
+  server: http://localhost:8080/fssc/
+  flow:
+    submitBill: extapi/workflow/submitBillByUserId
+    returnBill: extapi/workflow/returnToPreviousNode
+#单体：无nacos时，请配置 masterdata-service-url
+masterdata-service-url: ${masterdata_service_url:http://ecs:8096/}
+#微服务：有nacos，请配置masterdata_service_url为空，masterdata_service_name：配置服务在注册中心地址
+masterdata-service-name: ${masterdata_service_name:ecs}

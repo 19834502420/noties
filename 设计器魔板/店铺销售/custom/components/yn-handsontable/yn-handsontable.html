@@ -1,0 +1,45 @@
+<yn-designer-component>
+  <!-- <div>
+    <yn-tabs v-model="activeKey" @tabClick="afterTabClick">
+      <yn-tab-pane v-for="pane in panes" :tab="pane.title" :key="pane.key">
+        {{pane.content}}
+      </yn-tab-pane>
+    </yn-tabs>
+  </div> -->
+  <div class="toolbar-top" v-if="showSelect">
+    <yn-flex justify="space-between">
+      <yn-flex-item>
+        <yn-button @click="excle" icon="export"> </yn-button>
+        <!-- <label>
+          <span style="display: inline-block;width: 110px;text-align: right;">
+            日期选择
+          </span>
+          <yn-date-picker @change="onChange" style="margin-left:8px" />
+        </label> -->
+        <label>
+          月份选择
+
+          <yn-month-picker
+            @change="onChange"
+            placeholder="Select month"
+            style="margin-left:16px"
+          />
+        </label>
+      </yn-flex-item>
+    </yn-flex>
+  </div>
+  <div>
+    <yn-tabs v-model="activeKey" @tabClick="afterTabClick">
+      <yn-tab-pane v-for="pane in panes" :tab="pane.title" :key="pane.key">
+        <!-- {{pane.content}} -->
+      </yn-tab-pane>
+    </yn-tabs>
+  </div>
+  <div ref="tableWrapper">
+    <div ref="ynHandsontable"></div>
+  </div>
+
+  <div class="page-bottom" v-if="showSaveButton">
+    <yn-button type="primary" @click="onSaveClick">保存</yn-button>
+  </div>
+</yn-designer-component>

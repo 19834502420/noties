@@ -1,0 +1,32 @@
+1.mysql别名select   name as aaa from emp   // select   name  aaa from emp  一样
+2.去除重复行 select  distinct name from emp //去除重复行
+3.不为空  select ifnull（name,0）//如果员工name不为空
+4.  练习   select distinct ifnull (sum(工资*12) as "工资综合",0) from emp //（查询工资综合）
+5.表的关联关系 
+一对一关联
+一对多关联
+等值连接 （内连接）
+非等值链接（外连接）
+等值连接  from a , b where a.aaa=b.bbb
+
+
+试图 
+
+
+从sql优化的角度建议每个字段前 都指出所在的表
+
+mybatis
+
+    <insert id="addDept"  useGeneratedKeys="true"（开启主建自增） keyProperty="id"（指定主键名称） parameterType="com.yuanian.ecs.custom.model.Deptement">
+        INSERT INTO tp_dept_rgy VALUES (null,#{name})（id为空会自动添加id）
+    </insert>
+
+批量插入foreach
+<insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO t_user
+        (id, name, password)
+        VALUES
+        <foreach collection ="userList" item="user" separator =",">
+            (#{user.id}, #{user.name}, #{user.password})
+        </foreach >
+</insert>

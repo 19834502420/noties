@@ -37,7 +37,9 @@ step4: yarn --update--checksums
  "yn-p1": "1.0.0-hotfix-ECS2.1.20220518.01-220819-000655",
  "yn-p1-designer": "1.0.0-ECS2.1.20220518.1.29-test1"
 
+元年镜像地址
 
+https://ynverdaccio.yuanian.com/
 
 
 
@@ -50,3 +52,11 @@ step4: yarn --update--checksums
 问题解决
 
 **https://www.cnblogs.com/jocelyn11/p/16021236.html**
+
+
+
+查询所有组织下面的成员
+
+http://192.168.2.218:8180/masterdata/masterdata/client/getSysOrgUserListByUserId?LoginToken=11ed357285ce0b07aa77f79a42b74528&userId=
+
+http://192.168.2.218:8180/masterdata//masterdata/client/getDimObjectById?LoginToken=11ed357285ce0b07aa77f79a42b74528&dimObjectId=11ecf06e1dfafea0af59f3a53d79810d
